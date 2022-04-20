@@ -3,7 +3,7 @@
 {% block title %}Projekt Zespolowy {% endblock %}
 {% include "header.html" %}
 {% block content %}
-            <div class="row text-dark text-center">
+            <div class="row text-dark text-center mt-5">
                         <div class="col-md-12 col-lg-12 mb-5 mt-5 text-center">
                             <a class="text-decoration-none" href="{{url_for('menu_page')}}">
                                 <i class="fa-solid fa-arrow-left fa-3x text-dark"></i>
@@ -11,11 +11,12 @@
                             </a>
                      </div>
                  </div>
-{% if not candidates %}
+{% if not candidates or candidates_search is none %}
 <h2 class="text-center text-warning"> Brak kandydatów do wyświetlenia!</h2>
 {% endif %}
+
 {% if not candidate_search %}
-            {% if candidates %}
+{% if candidates %}
  <div class="row">
         <div class="col-lg-8 col-md-10 mx-auto">
             <div class="post-preview mt-4">
@@ -23,12 +24,13 @@
                     <div class="row cafe-name">
 
                            <div class="input-group mb-3">
-                              <input name="surname_search" type="text" class="form-control" style="height: 120%" placeholder="Wyszukaj po nazwisku" aria-label="Recipient's username" aria-describedby="button-addon2">
+                              <input name="surname_search" type="text" class="form-control" style="height: 100%" placeholder="Wyszukaj po nazwisku" aria-label="Recipient's username" aria-describedby="button-addon2">
                               <div class="input-group-append">
-                                <button class="ml-1 btn btn-outline-secondary btn-dark text-light" type="submit" id="button-addon2">Search</button>
+                                <button class="ml-1 btn btn-outline-secondary btn-dark text-light" style="margin-left: 1.5rem" type="submit" id="button-addon2">Search</button>
                               </div>
                             </div>
                     </div>
+
                 </form>
             </div>
         </div>
@@ -55,7 +57,7 @@
          <div class="row ">
                 <div class="col-sm-12 col-lg-4 col-md-6">
                         <details>
-                          <summary class="text-secondary">Rozwiń</summary>
+                          <summary class="text-secondary">Dane</summary>
                            <p>Email: {{candidate.Email}}</p>
                             <p>Pesel: {{candidate.Pesel}}</p>
                             <p>Narodowość: {{candidate.Nationality}}</p>
@@ -65,7 +67,7 @@
                          <p>Kod pocztowy: {{candidate.CityPostalCode}}</p>
                         </details>
                         </div>
-                         <div class="col-sm-12 col-lg-4 col-md-6">
+                         <div class="col-sm-12 col-lg-6 col-md-6">
                             <details>
                                 <summary class="text-secondary">Dokumenty</summary>
                                 <p>Numer karty kierowcy: {{candidate.driver_card_number}}</p>
@@ -77,11 +79,17 @@
                                     Formularz 4: {% if candidate.form4_status == 0 %} <p class="text-danger">Nie wysłano</p> {% elif candidate.form4_status == 1 %} <p class="text-warning">Wysłano</p> {% elif candidate.form4_status == 2 %} <p class="text-success">Zatwierdzone</p> {% elif candidate.form4_status == 3 %} <p class="text-danger">Odmowa</p> {% endif%}
 
                                 </details>
+
                             </div>
              </div>
          </div>
+
                         </div>
-                    <hr>
+                <div class="row mt-3">
+                    <div class="col-4 offset-2">
+                        <hr></div>
+                </div>
+
             {% endfor %}
             {% endif %}
 {% elif candidate_search %}
@@ -107,7 +115,7 @@
                     <div class="row">
                          <div class="col-lg-6 col-md-6 mx-auto">
                         <details>
-                          <summary class="text-secondary">Rozwiń</summary>
+                          <summary class="text-secondary">Dane</summary>
                            <p>Email: {{candidate_search.Email}}</p>
                             <p>Pesel: {{candidate_search.Pesel}}</p>
                             <p>Narodowość: {{candidate_search.Nationality}}</p>

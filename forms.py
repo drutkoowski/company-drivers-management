@@ -19,7 +19,7 @@ class NewCandidate(FlaskForm):
     form2 = SelectField(u'Formularz 2', choices=[('0', 'Nie wysłano'), ('1', 'Wysłano')])
     form3 = SelectField(u'Formularz 3', choices=[('0', 'Nie wysłano'), ('1', 'Wysłano')])
     form4 = SelectField(u'Formularz 4', choices=[('0', 'Nie wysłano'), ('1', 'Wysłano')])
-    submit = SubmitField("Dodaj kandydata")
+    submit = SubmitField("Dodaj kandydata",render_kw={'style': 'margin-top:1rem!important;'})
 
 class EditCandidate(FlaskForm):
     imie_kandydata = StringField("Imię: ", validators=[DataRequired()])
@@ -38,4 +38,4 @@ class EditCandidate(FlaskForm):
     form2 = SelectField(u'Formularz 2', choices=[('0', 'Nie wysłano'), ('1', 'Wysłano'), ('3', 'Otrzymano zgodę'),('4', 'Otrzymano odmowę')])
     form3 = SelectField(u'Formularz 3', choices=[('0', 'Nie wysłano'), ('1', 'Wysłano'), ('3', 'Otrzymano zgodę'),('4', 'Otrzymano odmowę')])
     form4 = SelectField(u'Formularz 4', choices=[('0', 'Nie wysłano'), ('1', 'Wysłano'), ('3', 'Otrzymano zgodę'),('4', 'Otrzymano odmowę')])
-    submit = SubmitField("Edytuj kandydata")
+    submit = SubmitField("Edytuj kandydata",render_kw={'style': 'margin-top:1rem!important;'})

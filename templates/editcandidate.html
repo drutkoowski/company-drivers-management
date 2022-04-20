@@ -3,6 +3,32 @@
 {% block title %}Projekt Zespolowy {% endblock %}
 {% include "header.html" %}
 {% block content %}
+<div class="row mt-5"></div>
+<div class="container mt-5">
+    <h2 class="text-center">Edytuj kandydata</h2>
+    <div class="row">
+        <div class="col-3"></div>
+        <div class="col-6">
+          <details>
+                          <summary class="text-secondary">Odnośniki do formularzy</summary>
+                           <p><a class="text-decoration-none" href="">Formularz 1</a></p>
+                            <p><a class="text-decoration-none" href="">Formularz 2</a></p>
+                            <p><a class="text-decoration-none" href="">Formularz 3</a></p>
+                            <p><a class="text-decoration-none" href="">Formularz 4</a></p>
+                        </details>
+        </div>
+        <div class="col-3"></div>
+    </div>
+
+</div>
+<div class="container">
+    <div class="row">
+        <div class="col-3"></div>
+        <div class="col-6"> {{ wtf.quick_form(form, novalidate=True, button_map={"submit": "primary"}) }}</div>
+        <div class="col-3"></div>
+    </div>
+
+</div>
  <div class="row text-dark text-center">
                         <div class="col-md-12 col-lg-12 mb-5 mt-5 text-center">
                             <a class="text-decoration-none" href="{{url_for('menu_page')}}">
@@ -12,12 +38,6 @@
                      </div>
                  </div>
 
-<div class="row mt-5"></div>
- {{ wtf.quick_form(form, novalidate=True, button_map={"submit": "primary"}) }}
-<div class="row mt-5"></div>
-<div class="row mt-5"></div>
-<div class="row mt-5"></div>
-<div class="row mt-5"></div>
 {% include "footer.html" %}
 {% endblock %}
 
