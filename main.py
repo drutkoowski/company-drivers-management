@@ -32,26 +32,33 @@ class Employee(UserMixin, db.Model):
 
 class Candidates(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    FirstName = db.Column(db.String(25), nullable=False)
-    LastName = db.Column(db.String(25), nullable=False)
-    Pesel = db.Column(db.Integer, nullable=False)
-    Email = db.Column(db.String(80), nullable=False)
-    Nationality = db.Column(db.String(25), nullable=False)
-    BirthCity = db.Column(db.String(80), nullable=False)
-    BirthDate = db.Column(db.Date, nullable=False)
-    City = db.Column(db.String(80), nullable=False)
-    Address = db.Column(db.String(80), nullable=False)
-    CityPostalCode = db.Column(db.Integer, nullable=False)
-    numer_karty_kierowcy_kandydata = db.Column(db.Integer, nullable=False)
+    FirstName = db.Column(db.String(25))
+    LastName = db.Column(db.String(25))
+    Pesel = db.Column(db.Integer)
+    Email = db.Column(db.String(80))
+    Nationality = db.Column(db.String(25))
+    BirthCity = db.Column(db.String(80))
+    BirthDate = db.Column(db.Date)
+    City = db.Column(db.String(80))
+    Address = db.Column(db.String(80))
+    CityPostalCode = db.Column(db.Integer)
+    driver_card_number = db.Column(db.Integer)
+    driver_card_number_expires_date = db.Column(db.Date)
+    form1_status = db.Column(db.Integer)
+    form2_status = db.Column(db.Integer)
+    form3_status = db.Column(db.Integer)
+    form4_status = db.Column(db.Integer)
 
-# db.create_all()
-# password = generate_password_hash("a")
-# new = Employee(FirstName="Damian", LastName="Rutkowski", Email="a@o2.pl", Password=password)
-# db.session.add(new)
-# db.session.commit()
+
+
+
+
 
 @app.route('/', methods=["GET", "POST"])
 def login_page():
+    if current_user.is_authenticated:
+        user = Employee.query.filter_by(id=current_user.id).first()
+        return redirect(url_for('menu_page', id=user.id))
     if request.method == "POST":
         login = request.form.get("email_input")
         user = Employee.query.filter_by(Email=login).first()
@@ -76,7 +83,6 @@ def menu_page():
 @login_required
 @app.route("/add", methods=["GET", "POST"])
 def add_candidate():
-
     form = NewCandidate()
     if request.method == "POST" and form.validate_on_submit():
         imie_kandydata = form.imie_kandydata.data
@@ -90,16 +96,34 @@ def add_candidate():
         adres_zamieszkania_kandydata = form.adres_zamieszkania_kandydata.data
         kod_pocztowy_kandydata = form.kod_pocztowy_kandydata.data
         numer_karty_kierowcy_kandydata = form.numer_karty_kierowcy.data
-        new_candidate = Candidates(FirstName=imie_kandydata, LastName=nazwisko_kandydata, Pesel=pesel_kandydata, Email=email_kandydata, Nationality=narodowosc_kandydata,BirthCity=miasto_urodzenia_kandydata,BirthDate=data_urodzenia_kandydata,City=miejscowosc_zamieszkania_kandydata,Address=adres_zamieszkania_kandydata,CityPostalCode=kod_pocztowy_kandydata, numer_karty_kierowcy_kandydata=numer_karty_kierowcy_kandydata)
+        data_wygasniecia_karty_kierowcy = form.data_wygasniecia_karty_kierowcy.data
+        form1_status = form.form1.data
+        form2_status = form.form2.data
+        form3_status = form.form3.data
+        form4_status = form.form4.data
+        new_candidate = Candidates(FirstName=imie_kandydata, LastName=nazwisko_kandydata, Pesel=pesel_kandydata,
+                                   Email=email_kandydata, Nationality=narodowosc_kandydata,
+                                   BirthCity=miasto_urodzenia_kandydata,BirthDate=data_urodzenia_kandydata,
+                                   City=miejscowosc_zamieszkania_kandydata,Address=adres_zamieszkania_kandydata,
+                                   CityPostalCode=kod_pocztowy_kandydata,
+                                   driver_card_number=numer_karty_kierowcy_kandydata,
+                                   driver_card_number_expires_date=data_wygasniecia_karty_kierowcy,
+                                   form1_status=form1_status,form2_status=form2_status,form3_status=form3_status,
+                                   form4_status=form4_status,
+                                   )
         db.session.add(new_candidate)
         db.session.commit()
         return render_template("menu_page.html")
     return render_template("add.html", form=form)
 
 @login_required
-@app.route("/show", methods=["GET"])
+@app.route("/show", methods=["GET", "POST"])
 def show_candidates():
     candidates = Candidates.query.all()
+    if request.method == "POST":
+        surname_to_search = request.form.get('surname_search')
+        candidate_to_search = Candidates.query.filter_by(LastName=surname_to_search).first()
+        return render_template('showcandidates.html', candidates=candidates, candidate_search=candidate_to_search)
     return render_template("showcandidates.html", candidates=candidates)
 
 @login_required
@@ -119,7 +143,12 @@ def edit_candidate():
         candidate.City = form.miejscowosc_zamieszkania_kandydata.data
         candidate.Address = form.adres_zamieszkania_kandydata.data
         candidate.CityPostalCode = form.kod_pocztowy_kandydata.data
-        candidate.numer_karty_kierowcy_kandydata = form.numer_karty_kierowcy.data
+        candidate.driver_card_number = form.numer_karty_kierowcy.data
+        candidate.driver_card_number_expires_date = form.data_wygasniecia_karty_kierowcy.data
+        candidate.form1_status = form.form1.data
+        candidate.form2_status = form.form2.data
+        candidate.form3_status = form.form3.data
+        candidate.form4_status = form.form4.data
         db.session.commit()
         return redirect(url_for('menu_page'))
 
@@ -134,7 +163,7 @@ def edit_candidate():
         form.miejscowosc_zamieszkania_kandydata.data = candidate.City
         form.adres_zamieszkania_kandydata.data = candidate.Address
         form.kod_pocztowy_kandydata.data = candidate.CityPostalCode
-        form.numer_karty_kierowcy.data = candidate.numer_karty_kierowcy_kandydata
+        form.numer_karty_kierowcy.data = candidate.driver_card_number
     return render_template("editcandidate.html", form=form)
 
 @login_required

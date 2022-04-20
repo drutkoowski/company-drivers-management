@@ -11,8 +11,28 @@
                             </a>
                      </div>
                  </div>
-
+{% if not candidates %}
+<h2 class="text-center text-warning"> Brak kandydatów do wyświetlenia!</h2>
+{% endif %}
+{% if not candidate_search %}
             {% if candidates %}
+ <div class="row">
+        <div class="col-lg-8 col-md-10 mx-auto">
+            <div class="post-preview mt-4">
+                 <form action="{{url_for('show_candidates')}}" method="POST">
+                    <div class="row cafe-name">
+
+                           <div class="input-group mb-3">
+                              <input name="surname_search" type="text" class="form-control" style="height: 120%" placeholder="Wyszukaj po nazwisku" aria-label="Recipient's username" aria-describedby="button-addon2">
+                              <div class="input-group-append">
+                                <button class="ml-1 btn btn-outline-secondary btn-dark text-light" type="submit" id="button-addon2">Search</button>
+                              </div>
+                            </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
             {% for candidate in candidates %}
 <div class="row mt-5"></div>
  <div class="row mt-4">
@@ -28,25 +48,95 @@
                         <p><a class="text-decoration-none" href="{{url_for('delete_candidate', id=candidate.id)}}">Usuń</a></p>
                         </div>
                     </div>
+        </div>
+ </div>
+ <div class="row">
+     <div class="col-lg-8 col-md-10 mx-auto">
+         <div class="row ">
+                <div class="col-sm-12 col-lg-4 col-md-6">
+                        <details>
+                          <summary class="text-secondary">Rozwiń</summary>
+                           <p>Email: {{candidate.Email}}</p>
+                            <p>Pesel: {{candidate.Pesel}}</p>
+                            <p>Narodowość: {{candidate.Nationality}}</p>
+                            <p>Miejsce urodzenia: {{candidate.BirthCity}}</p>
+                          <p>Miejsce zamieszkania: {{candidate.City}}</p>
+                          <p>Adres zamieszkania: {{candidate.Address}}</p>
+                         <p>Kod pocztowy: {{candidate.CityPostalCode}}</p>
+                        </details>
+                        </div>
+                         <div class="col-sm-12 col-lg-4 col-md-6">
+                            <details>
+                                <summary class="text-secondary">Dokumenty</summary>
+                                <p>Numer karty kierowcy: {{candidate.driver_card_number}}</p>
+                                <p>Data wygaśnięcia karty kierowcy: {{candidate.driver_card_number_expires_date}}</p>
+                                <p>Status formularzy: </p>
+                                    Formularz 1: {% if candidate.form1_status == 0 %} <p class="text-danger">Nie wysłano</p> {% elif candidate.form1_status == 1 %} <p class="text-warning">Wysłano</p> {% elif candidate.form1_status == 2 %} <p class="text-success">Zatwierdzone</p> {% elif candidate.form1_status == 3 %} <p class="text-danger">Odmowa</p> {% endif%}
+                                    Formularz 2: {% if candidate.form2_status == 0 %} <p class="text-danger">Nie wysłano</p> {% elif candidate.form2_status == 1 %} <p class="text-warning">Wysłano</p> {% elif candidate.form2_status == 2 %} <p class="text-success">Zatwierdzone</p> {% elif candidate.form2_status == 3 %} <p class="text-danger">Odmowa</p> {% endif%}
+                                    Formularz 3: {% if candidate.form3_status == 0 %} <p class="text-danger">Nie wysłano</p> {% elif candidate.form3_status == 1 %} <p class="text-warning">Wysłano</p> {% elif candidate.form3_status == 2 %} <p class="text-success">Zatwierdzone</p> {% elif candidate.form3_status == 3 %} <p class="text-danger">Odmowa</p> {% endif%}
+                                    Formularz 4: {% if candidate.form4_status == 0 %} <p class="text-danger">Nie wysłano</p> {% elif candidate.form4_status == 1 %} <p class="text-warning">Wysłano</p> {% elif candidate.form4_status == 2 %} <p class="text-success">Zatwierdzone</p> {% elif candidate.form4_status == 3 %} <p class="text-danger">Odmowa</p> {% endif%}
 
+                                </details>
+                            </div>
+             </div>
+         </div>
+                        </div>
+                    <hr>
+            {% endfor %}
+            {% endif %}
+{% elif candidate_search %}
+<div class="row">
+    <div class="col-lg-8 col-md-10 mx-auto">
+    <a href="{{url_for('show_candidates')}}" class="text-decoration-none text-success">Pokaż wszystkich</a>
+    </div>
+</div>
+ <div class="row mt-4">
+        <div class="col-lg-8 col-md-10 mx-auto">
+                    <div class="row ">
+                        <div class="col-sm-12 col-lg-4 col-md-6">
+                            <h2 class="">
+                                {{candidate_search.FirstName}} {{candidate_search.LastName}}
+                            </h2>
+                         </div>
+                      <div class="col-sm-12 col-lg-8 col-md-6 ml-auto">
+                       <p><a class="text-decoration-none" href="{{url_for('edit_candidate', id=candidate_search.id)}}">Edytuj</a></p>
+                        <p><a class="text-decoration-none" href="{{url_for('delete_candidate', id=candidate_search.id)}}">Usuń</a></p>
+                        </div>
+                    </div>
 
-                    <details>
-                      <summary>Rozwiń</summary>
-                       <p>Email: {{candidate.Email}}</p>
-                        <p>Pesel: {{candidate.Pesel}}</p>
-                        <p>Narodowość: {{candidate.Nationality}}</p>
-                        <p>Miejsce urodzenia: {{candidate.BirthCity}}</p>
-                      <p>Miejsce zamieszkania: {{candidate.City}}</p>
-                      <p>Adres zamieszkania: {{candidate.Address}}</p>
-                     <p>Kod pocztowy: {{candidate.CityPostalCode}}</p>
-                     <p>Numer karty kierowcy: {{candidate.numer_karty_kierowcy_kandydata}}</p>
+                    <div class="row">
+                         <div class="col-lg-6 col-md-6 mx-auto">
+                        <details>
+                          <summary class="text-secondary">Rozwiń</summary>
+                           <p>Email: {{candidate_search.Email}}</p>
+                            <p>Pesel: {{candidate_search.Pesel}}</p>
+                            <p>Narodowość: {{candidate_search.Nationality}}</p>
+                            <p>Miejsce urodzenia: {{candidate_search.BirthCity}}</p>
+                          <p>Miejsce zamieszkania: {{candidate_search.City}}</p>
+                          <p>Adres zamieszkania: {{candidate_search.Address}}</p>
+                         <p>Kod pocztowy: {{candidate_search.CityPostalCode}}</p>
+                        </details>
+                        </div>
+                        <div class="col-sm-6 col-lg-6 col-md-6 ml-auto">
+                            <details>
+                                <summary class="text-secondary">Dokumenty</summary>
+                                <p>Numer karty kierowcy: {{candidate_search.driver_card_number}}</p>
+                                <p>Data wygaśnięcia karty kierowcy: {{candidate_search.driver_card_number_expires_date}}</p>
+                                <p>Status formularzy: </p>
+                                    Formularz 1: {% if candidate_search.form1_status == 0 %} <p class="text-danger">Nie wysłano</p> {% elif candidate_search.form1_status == 1 %} <p class="text-warning">Wysłano</p> {% elif candidate_search.form1_status == 2 %} <p class="text-success">Zatwierdzone</p> {% elif candidate_search.form1_status == 3 %} <p class="text-danger">Odmowa</p> {% endif%}
+                                    Formularz 2: {% if candidate_search.form2_status == 0 %} <p class="text-danger">Nie wysłano</p> {% elif candidate_search.form2_status == 1 %} <p class="text-warning">Wysłano</p> {% elif candidate_search.form2_status == 2 %} <p class="text-success">Zatwierdzone</p> {% elif candidate_search.form2_status == 3 %} <p class="text-danger">Odmowa</p> {% endif%}
+                                    Formularz 3: {% if candidate_search.form3_status == 0 %} <p class="text-danger">Nie wysłano</p> {% elif candidate_search.form3_status == 1 %} <p class="text-warning">Wysłano</p> {% elif candidate_search.form3_status == 2 %} <p class="text-success">Zatwierdzone</p> {% elif candidate_search.form3_status == 3 %} <p class="text-danger">Odmowa</p> {% endif%}
+                                    Formularz 4: {% if candidate_search.form4_status == 0 %} <p class="text-danger">Nie wysłano</p> {% elif candidate_search.form4_status == 1 %} <p class="text-warning">Wysłano</p> {% elif candidate_search.form4_status == 2 %} <p class="text-success">Zatwierdzone</p> {% elif candidate_search.form4_status == 3 %} <p class="text-danger">Odmowa</p> {% endif%}
 
-                     </details>
+                                </details>
+                            </div>
+                        </div>
          <hr>
         </div>
  </div>
-            {% endfor %}
-            {% endif %}
+{% endif %}
+
+
 <div class="row mt-5 mb-5"></div>
 <div class="row mt-5 mb-5"></div>
 <div class="row mt-5 mb-5"></div>
