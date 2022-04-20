@@ -1,9 +1,12 @@
+import webbrowser
+
 from flask import Flask, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin, login_user, LoginManager, login_required, current_user, logout_user
 from forms import NewCandidate, EditCandidate
 from flask_bootstrap import Bootstrap
+import os
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///aplikacja-pz.db"
@@ -113,6 +116,16 @@ def add_candidate():
                                    )
         db.session.add(new_candidate)
         db.session.commit()
+        #Tworzenie folderu kandydata
+        cwd = rf"{os.getcwd()}"
+        newpath = rf"{cwd}/{pesel_kandydata}"
+        if not os.path.exists(newpath):
+            folder_name = f"{pesel_kandydata}"
+            os.mkdir(f"{folder_name}")
+            if form.skan_dowodu.data:
+                form.skan_dowodu.data.save(os.path.join(f'{pesel_kandydata}/skandowodu.pdf'))
+            if form.karta_kierowcy.data:
+                form.karta_kierowcy.data.save(os.path.join(f'{pesel_kandydata}/kartakierowcy.pdf'))
         return render_template("menu_page.html")
     return render_template("add.html", form=form)
 
@@ -124,6 +137,28 @@ def show_candidates():
         surname_to_search = request.form.get('surname_search')
         candidate_to_search = Candidates.query.filter_by(LastName=surname_to_search).first()
         return render_template('showcandidates.html', candidates=candidates, candidate_search=candidate_to_search)
+    return render_template("showcandidates.html", candidates=candidates)
+
+@login_required
+@app.route("/show-docs/karta", methods=["GET"])
+def show_docs_karta():
+    candidates = Candidates.query.all()
+    id = request.args.get("id")
+    candidate = Candidates.query.filter_by(id=id).first()
+    pesel = candidate.Pesel
+    path = rf"{os.getcwd()}\{pesel}\kartakierowcy.pdf"
+    webbrowser.open(rf'{path}')
+    return render_template("showcandidates.html", candidates=candidates)
+
+@login_required
+@app.route("/show-docs/dowod", methods=["GET"])
+def show_docs_dowod():
+    candidates = Candidates.query.all()
+    id = request.args.get("id")
+    candidate = Candidates.query.filter_by(id=id).first()
+    pesel = candidate.Pesel
+    path = rf"{os.getcwd()}\{pesel}\skandowodu.pdf"
+    webbrowser.open(rf'{path}')
     return render_template("showcandidates.html", candidates=candidates)
 
 @login_required
@@ -150,6 +185,16 @@ def edit_candidate():
         candidate.form3_status = form.form3.data
         candidate.form4_status = form.form4.data
         db.session.commit()
+        cwd = rf"{os.getcwd()}"
+        pesel_kandydata = candidate.Pesel
+        newpath = rf"{cwd}/{pesel_kandydata}"
+        if not os.path.exists(newpath):
+            folder_name = f"{pesel_kandydata}"
+            os.mkdir(f"{folder_name}")
+            if form.skan_dowodu.data:
+                form.skan_dowodu.data.save(os.path.join(f'{pesel_kandydata}/skandowodu.pdf'))
+            if form.karta_kierowcy.data:
+                form.karta_kierowcy.data.save(os.path.join(f'{pesel_kandydata}/kartakierowcy.pdf'))
         return redirect(url_for('menu_page'))
 
     if candidate is not None:

@@ -1,8 +1,11 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, PasswordField, IntegerField, DateField, SelectField
-from wtforms.validators import DataRequired, URL,NumberRange, Email, Length
+from wtforms import StringField, SubmitField, PasswordField, IntegerField, DateField, SelectField, FileField
+from wtforms.validators import DataRequired, URL, NumberRange, Email, Length, Optional
+
 
 class NewCandidate(FlaskForm):
+    karta_kierowcy = FileField("OPCJONALNE: Dodaj kartę kierowcy (pdf)", validators=[Optional()],render_kw={'style': 'margin-top:1rem!important;'})
+    skan_dowodu = FileField("OPCJONALNE: Dodaj skan dowodu (pdf)", validators=[Optional()],render_kw={'style': 'margin-top:1rem!important;'})
     imie_kandydata = StringField("Imię: ", validators=[DataRequired()])
     nazwisko_kandydata = StringField("Nazwisko: ", validators=[DataRequired()])
     pesel_kandydata = IntegerField("Pesel: ", validators=[DataRequired()])
@@ -22,6 +25,10 @@ class NewCandidate(FlaskForm):
     submit = SubmitField("Dodaj kandydata",render_kw={'style': 'margin-top:1rem!important;'})
 
 class EditCandidate(FlaskForm):
+    karta_kierowcy = FileField("OPCJONALNE: Dodaj kartę kierowcy (pdf)", validators=[Optional()],
+                               render_kw={'style': 'margin-top:1rem!important;'})
+    skan_dowodu = FileField("OPCJONALNE: Dodaj skan dowodu (pdf)", validators=[Optional()],
+                            render_kw={'style': 'margin-top:1rem!important;'})
     imie_kandydata = StringField("Imię: ", validators=[DataRequired()])
     nazwisko_kandydata = StringField("Nazwisko: ", validators=[DataRequired()])
     pesel_kandydata = IntegerField("Pesel: ", validators=[DataRequired()])
