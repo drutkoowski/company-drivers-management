@@ -1,9 +1,11 @@
 import string
 import webbrowser
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, Response
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin, login_user, LoginManager, login_required, current_user, logout_user
+from werkzeug.utils import secure_filename
+
 from forms import NewCandidate, EditCandidate
 from flask_bootstrap import Bootstrap
 import os
@@ -49,7 +51,8 @@ def set_status():
 
 
 def months(d1, d2):
-    return d1.month - d2.month + 12*(d1.year - d2.year)
+    return d1.month - d2.month + 12 * (d1.year - d2.year)
+
 
 def alerting(d2):
     d1 = datetime.datetime.now()
@@ -58,6 +61,7 @@ def alerting(d2):
         return True, diff
     else:
         return False, diff
+
 
 def code_generator(size=6, chars=string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))
@@ -96,11 +100,25 @@ class Candidates(db.Model):
     form4_status = db.Column(db.Integer)
     status = db.Column(db.Integer, default=0)
     alert = db.Column(db.Integer, default=0)
+    documents = db.relationship('Documents', backref="candidates")
+    documentscard = db.relationship('DocumentsCard', backref="candidates")
 
-# db.create_all()
-# employee = Employee(FirstName="Damian", LastName="Rutkowski", Email="a@o2.pl", Password=generate_password_hash("a"))
-# db.session.add(employee)
-# db.session.commit()
+
+class Documents(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    doc = db.Column(db.Text, unique=True, nullable=False)
+    name = db.Column(db.Text, nullable=False)
+    mimetype = db.Column(db.Text, nullable=False)
+    candidate_id = db.Column(db.Integer, db.ForeignKey('candidates.id'))
+
+
+class DocumentsCard(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    doc = db.Column(db.Text, unique=True, nullable=False)
+    name = db.Column(db.Text, nullable=False)
+    mimetype = db.Column(db.Text, nullable=False)
+    candidate_id = db.Column(db.Integer, db.ForeignKey('candidates.id'))
+
 
 @app.route('/', methods=["GET", "POST"])
 def login_page():
@@ -166,16 +184,27 @@ def add_candidate():
                                    )
         db.session.add(new_candidate)
         db.session.commit()
-        # Tworzenie folderu kandydata
-        cwd = rf"{os.getcwd()}"
-        newpath = rf"{cwd}/{pesel_kandydata}"
-        if not os.path.exists(newpath):
-            folder_name = f"{pesel_kandydata}"
-            os.mkdir(f"{folder_name}")
-            if form.skan_dowodu.data:
-                form.skan_dowodu.data.save(os.path.join(f'{pesel_kandydata}/skandowodu.pdf'))
+        if form.skan_dowodu.data:
+            filename = secure_filename(form.skan_dowodu.data.filename)
+            mimetype = form.skan_dowodu.data.mimetype
+            if not filename or not mimetype:
+                flash("Nie udało się dodać skanu!")
+                return render_template("add.html", form=form)
+            doc = Documents(doc=form.skan_dowodu.data.read(), name=filename, mimetype=mimetype,
+                            candidate_id=new_candidate.id)
+            db.session.add(doc)
+            db.session.commit()
             if form.karta_kierowcy.data:
-                form.karta_kierowcy.data.save(os.path.join(f'{pesel_kandydata}/kartakierowcy.pdf'))
+                filename = secure_filename(form.karta_kierowcy.data.filename)
+                mimetype = form.karta_kierowcy.data.mimetype
+                if not filename or not mimetype:
+                    flash("Nie udało się dodać skanu!")
+                    return render_template("add.html", form=form)
+                docCard = DocumentsCard(doc=form.karta_kierowcy.data.read(), name=filename, mimetype=mimetype,
+                                    candidate_id=new_candidate.id)
+                db.session.add(docCard)
+                db.session.commit()
+
         return render_template("menu_page.html")
     return render_template("add.html", form=form)
 
@@ -199,14 +228,12 @@ def show_candidates():
 def show_docs_karta():
     candidates = Candidates.query.all()
     id = request.args.get("id")
-    candidate = Candidates.query.filter_by(id=id).first()
-    pesel = candidate.Pesel
-    path = rf"{os.getcwd()}\{pesel}\kartakierowcy.pdf"
-    if os.path.isfile(rf'{path}'):
-        webbrowser.open(rf'{path}')
+    doc = DocumentsCard.query.filter_by(candidate_id=id).first()
+    if doc:
+        return Response(doc.doc, mimetype=doc.mimetype)
     else:
         flash("Brak odpowiedniego dokumentu w bazie!")
-    return render_template("showcandidates.html", candidates=candidates)
+        return render_template("showcandidates.html", candidates=candidates)
 
 
 @login_required
@@ -214,14 +241,12 @@ def show_docs_karta():
 def show_docs_dowod():
     candidates = Candidates.query.all()
     id = request.args.get("id")
-    candidate = Candidates.query.filter_by(id=id).first()
-    pesel = candidate.Pesel
-    path = rf"{os.getcwd()}\{pesel}\skandowodu.pdf"
-    if os.path.isfile(rf'{path}'):
-        webbrowser.open(rf'{path}')
+    doc = Documents.query.filter_by(candidate_id=id).first()
+    if doc:
+        return Response(doc.doc, mimetype=doc.mimetype)
     else:
         flash("Brak odpowiedniego dokumentu w bazie!")
-    return render_template("showcandidates.html", candidates=candidates)
+        return render_template("showcandidates.html", candidates=candidates)
 
 
 @login_required

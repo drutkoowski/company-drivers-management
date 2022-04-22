@@ -47,3 +47,4 @@ class EditCandidate(FlaskForm):
     form3 = SelectField(u'Formularz 3', choices=[('0', 'Nie wysłano'), ('1', 'Wysłano'), ('3', 'Otrzymano zgodę'),('4', 'Otrzymano odmowę')])
     form4 = SelectField(u'Formularz 4', choices=[('0', 'Nie wysłano'), ('1', 'Wysłano'), ('3', 'Otrzymano zgodę'),('4', 'Otrzymano odmowę')])
     submit = SubmitField("Edytuj kandydata",render_kw={'style': 'margin-top:1rem!important;'})
+
