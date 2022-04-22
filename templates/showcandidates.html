@@ -58,7 +58,8 @@
                                 {{candidate.FirstName}} {{candidate.LastName}}
                             </h2>
                             {% if candidate.status == 0 %} <p class="text-danger">Dokumenty niewysłane</p>{% elif candidate.status == 1 %} <p class="text-warning"> Dokumenty wysłane</p>{% elif candidate.status == 3 %} <p class="text-success"> Otrzymano wszelkie zgody</p> {% elif candidate.status == 4 %} <p class="text-danger"> Otrzymano odmowę</p> {% endif %}
-                         </div>
+                            {% if candidate.alert == 1 %} <p class="text-warning">Niezbędne dokumenty niedługo wygasną</p> {% elif candidate.alert == 2 %} <p class="text-danger">Niezbędne dokumenty wygasły</p> {% endif %}
+                        </div>
                       <div class="col-sm-12 col-lg-4 col-md-4 ml-auto">
                        <p><a class="text-decoration-none" href="{{url_for('edit_candidate', id=candidate.id)}}">Edytuj</a></p>
                         <p><a class="text-decoration-none" href="{{url_for('delete_candidate', id=candidate.id)}}">Usuń</a></p>

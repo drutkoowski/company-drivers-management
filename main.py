@@ -9,6 +9,7 @@ from flask_bootstrap import Bootstrap
 import os
 import smtplib
 import random
+import datetime
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///aplikacja-pz.db"
@@ -26,6 +27,7 @@ email_to_change = ""
 
 def set_status():
     candidates = Candidates.query.all()
+    now = datetime.datetime.now()
     for candidate in candidates:
         if candidate.form1_status == 0 or candidate.form2_status == 0 or candidate.form3_status == 0 or candidate.form4_status == 0:
             candidate.status = 0
@@ -35,8 +37,25 @@ def set_status():
             candidate.status = 3
         if candidate.form1_status == 4 or candidate.form2_status == 4 or candidate.form3_status == 4 or candidate.form4_status == 4:
             candidate.status = 4
+        is_alert, diff = alerting(candidate.driver_card_number_expires_date)
+        if is_alert and (2 > diff > 0):
+            candidate.alert = 1
+        if is_alert and diff < 0:
+            candidate.alert = 2
     db.session.flush()
     db.session.commit()
+
+
+def months(d1, d2):
+    return d1.month - d2.month + 12*(d1.year - d2.year)
+
+def alerting(d2):
+    d1 = datetime.datetime.now()
+    diff = months(d1=d2, d2=d1)
+    if diff < 2:
+        return True, diff
+    else:
+        return False, diff
 
 def code_generator(size=6, chars=string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))
@@ -74,8 +93,12 @@ class Candidates(db.Model):
     form3_status = db.Column(db.Integer)
     form4_status = db.Column(db.Integer)
     status = db.Column(db.Integer, default=0)
+    alert = db.Column(db.Integer, default=0)
 
-
+# db.create_all()
+# employee = Employee(FirstName="Damian", LastName="Rutkowski", Email="a@o2.pl", Password=generate_password_hash("a"))
+# db.session.add(employee)
+# db.session.commit()
 
 @app.route('/', methods=["GET", "POST"])
 def login_page():

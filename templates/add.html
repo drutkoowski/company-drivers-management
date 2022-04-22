@@ -5,7 +5,7 @@
 {% block content %}
 <div class="row mt-5"></div>
 <div class="container mt-5">
-    <h2 class="text-center">Dodaj kandydata</h2>
+    <h2 class="text-center text-dark">Dodaj kandydata</h2>
      {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
         {% for category, message in messages %}
@@ -23,7 +23,7 @@
         <div class="col-3"></div>
         <div class="col-6">
           <details>
-                          <summary class="text-secondary">Odnośniki do formularzy</summary>
+                          <summary class="text-dark">Odnośniki do formularzy</summary>
                            <p><a class="text-decoration-none" href="">Formularz 1</a></p>
                             <p><a class="text-decoration-none" href="">Formularz 2</a></p>
                             <p><a class="text-decoration-none" href="">Formularz 3</a></p>
@@ -35,10 +35,10 @@
 
 
 </div>
-<div class="container">
+<div class="container text-dark">
     <div class="row">
         <div class="col-3"></div>
-        <div class="col-6"> {{ wtf.quick_form(form, novalidate=True, button_map={"submit": "primary"}) }}</div>
+        <div class="col-6"> {{ wtf.quick_form(form, novalidate=True, button_map={"submit": "dark"}) }}</div>
         <div class="col-3"></div>
     </div>
 
