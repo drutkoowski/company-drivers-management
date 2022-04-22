@@ -32,6 +32,19 @@
                     </div>
 
                 </form>
+                {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+        <div class="row faded-alert text-center text-danger">
+            <div class="col-md-12 col-lg-12 col-sm-12 ml-auto mr-auto">
+            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                <span>{{ message }}</span>
+            </div>
+                </div>
+            </div>
+            {% endfor %}
+            {% endif %}
+        {% endwith %}
             </div>
         </div>
     </div>

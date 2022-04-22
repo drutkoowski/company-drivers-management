@@ -23,9 +23,9 @@
           alt="Sample image">
       </div>
       <div class="col-md-8 col-lg-6 col-xl-4 offset-xl-1">
-        <form name="login_form" action="{{url_for('login_page')}}" method="post">
+        <form name="login_form_password" action="{{url_for('email_code')}}" method="post">
           <div class="d-flex flex-row align-items-center justify-content-center justify-content-lg-start">
-            <h1>Zaloguj się</h1>
+            <h1>Przypomnij hasło</h1>
           </div>
 
           <div class="divider d-flex align-items-center my-4">
@@ -46,28 +46,17 @@
         {% endwith %}
           <!-- Email input -->
           <div class="form-outline mb-4">
-            <input name="email_input" type="email" id="form3Example3" class="form-control form-control-lg"
-              placeholder="Wprowadź login" />
-            <label class="form-label" for="form3Example3">Login</label>
+            <input name="code_sent" type="text" id="form3Example3" class="form-control form-control-lg"
+              placeholder="Przepisz kod wysłany na podany adres e-mail" />
           </div>
-
-          <!-- Password input -->
-          <div class="form-outline mb-3">
-            <input name="password_input" type="password" id="form3Example4" class="form-control form-control-lg"
-              placeholder="Wprowadź hasło" />
-            <label class="form-label" for="form3Example4">Hasło</label>
-          </div>
-
-          <div class="d-flex justify-content-between align-items-center">
-            <!-- Checkbox -->
-
-            
-            <a href="{{url_for('password_lost')}}" methods="GET" class="text-body">Zapomniałeś hasła?</a>
+        <div class="form-outline mb-4">
+            <input name="password_new" type="password" id="form3Example4" class="form-control form-control-lg"
+              placeholder="Wpisz nowe hasło" />
           </div>
 
           <div class="text-center text-lg-start mt-4 pt-2">
             <button type="submit" class="btn btn-primary btn-lg"
-              style="padding-left: 2.5rem; padding-right: 2.5rem;">Zaloguj</button>
+              style="padding-left: 2.5rem; padding-right: 2.5rem;">Przypomnij</button>
           </div>
 
         </form>
