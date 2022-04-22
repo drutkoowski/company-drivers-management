@@ -42,6 +42,8 @@ def set_status():
             candidate.alert = 1
         if is_alert and diff < 0:
             candidate.alert = 2
+        elif is_alert is False:
+            candidate.alert = 0
     db.session.flush()
     db.session.commit()
 
