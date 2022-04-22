@@ -5,8 +5,8 @@ from wtforms.validators import DataRequired, URL, NumberRange, Email, Length, Op
 
 
 class NewCandidate(FlaskForm):
-    karta_kierowcy = FileField("OPCJONALNE: Dodaj kartę kierowcy (pdf)", validators=[Optional()],render_kw={'style': 'margin-top:1rem!important;'})
-    skan_dowodu = FileField("OPCJONALNE: Dodaj skan dowodu (pdf)", validators=[Optional()],render_kw={'style': 'margin-top:1rem!important;'})
+    karta_kierowcy = FileField("OPCJONALNE: Dodaj kartę kierowcy (jpg/png)", validators=[Optional()],render_kw={'style': 'margin-top:1rem!important;'})
+    skan_dowodu = FileField("OPCJONALNE: Dodaj skan dowodu (jpg/png)", validators=[Optional()],render_kw={'style': 'margin-top:1rem!important;'})
     imie_kandydata = StringField("Imię: ", validators=[DataRequired(message="Brak imienia!")])
     nazwisko_kandydata = StringField("Nazwisko: ", validators=[DataRequired(message="Brak nazwiska!")])
     pesel_kandydata = IntegerField("Pesel: ", validators=[DataRequired(message="Brak numeru pesel!")])
