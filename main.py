@@ -1,5 +1,7 @@
 import string
 import webbrowser
+
+import werkzeug
 from flask import Flask, render_template, request, redirect, url_for, flash, Response
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -76,7 +78,7 @@ class Employee(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     FirstName = db.Column(db.String(250))
     LastName = db.Column(db.String(250))
-    Email = db.Column(db.String(250))
+    Email = db.Column(db.String(250), unique=True)
     Password = db.Column(db.String(250))
 
 
@@ -119,6 +121,28 @@ class DocumentsCard(db.Model):
     mimetype = db.Column(db.Text, nullable=False)
     candidate_id = db.Column(db.Integer, db.ForeignKey('candidates.id'))
 
+@app.route('/signup', methods=["GET", "POST"])
+def signup():
+    if current_user.is_authenticated:
+        user = Employee.query.filter_by(id=current_user.id).first()
+        return redirect(url_for('menu_page', id=user.id))
+    if request.method == "POST":
+        email = request.form.get("email_signup")
+        firstname = request.form.get("firstname_signup")
+        secondname = request.form.get("secondname_signup")
+        password = request.form.get("password_signup")
+        is_user_in_database = Employee.query.filter_by(Email=email).first()
+        print(is_user_in_database)
+        if is_user_in_database:
+            flash("Użytkownik z podanym adresem email już istnieje!")
+            return render_template("signup.html")
+        elif is_user_in_database is None:
+            flash("Konto założone pomyślnie!")
+            employee = Employee(FirstName=firstname, LastName=secondname,Email=email, Password=generate_password_hash(password))
+            db.session.add(employee)
+            db.session.commit()
+            redirect(url_for('login_page'))
+    return render_template("signup.html")
 
 @app.route('/', methods=["GET", "POST"])
 def login_page():
@@ -201,7 +225,7 @@ def add_candidate():
                     flash("Nie udało się dodać skanu!")
                     return render_template("add.html", form=form)
                 docCard = DocumentsCard(doc=form.karta_kierowcy.data.read(), name=filename, mimetype=mimetype,
-                                    candidate_id=new_candidate.id)
+                                        candidate_id=new_candidate.id)
                 db.session.add(docCard)
                 db.session.commit()
 
