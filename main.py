@@ -23,8 +23,24 @@ login_manager.init_app(app)
 code = ""
 email_to_change = ""
 
+
+def set_status():
+    candidates = Candidates.query.all()
+    for candidate in candidates:
+        if candidate.form1_status == 0 or candidate.form2_status == 0 or candidate.form3_status == 0 or candidate.form4_status == 0:
+            candidate.status = 0
+        if candidate.form1_status == 1 and candidate.form2_status == 1 and candidate.form3_status == 1 and candidate.form4_status == 1:
+            candidate.status = 1
+        if candidate.form1_status == 3 and candidate.form2_status == 3 and candidate.form3_status == 3 and candidate.form4_status == 3:
+            candidate.status = 3
+        if candidate.form1_status == 4 or candidate.form2_status == 4 or candidate.form3_status == 4 or candidate.form4_status == 4:
+            candidate.status = 4
+    db.session.flush()
+    db.session.commit()
+
 def code_generator(size=6, chars=string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))
+
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -33,10 +49,10 @@ def load_user(user_id):
 
 class Employee(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    FirstName = db.Column(db.String(250), nullable=False)
-    LastName = db.Column(db.String(250), nullable=False)
-    Email = db.Column(db.String(250), nullable=False)
-    Password = db.Column(db.String(250), nullable=False)
+    FirstName = db.Column(db.String(250))
+    LastName = db.Column(db.String(250))
+    Email = db.Column(db.String(250))
+    Password = db.Column(db.String(250))
 
 
 class Candidates(db.Model):
@@ -57,6 +73,9 @@ class Candidates(db.Model):
     form2_status = db.Column(db.Integer)
     form3_status = db.Column(db.Integer)
     form4_status = db.Column(db.Integer)
+    status = db.Column(db.Integer, default=0)
+
+
 
 @app.route('/', methods=["GET", "POST"])
 def login_page():
@@ -139,6 +158,7 @@ def add_candidate():
 @login_required
 @app.route("/show", methods=["GET", "POST"])
 def show_candidates():
+    set_status()
     candidates = Candidates.query.all()
     if request.method == "POST":
         surname_to_search = request.form.get('surname_search')
@@ -185,7 +205,7 @@ def edit_candidate():
     id = request.args.get("id")
     candidate = Candidates.query.filter_by(id=id).first()
     form = EditCandidate()
-    if request.method == "POST":
+    if request.method == "POST" and form.validate_on_submit():
         candidate.FirstName = form.imie_kandydata.data
         candidate.LastName = form.nazwisko_kandydata.data
         candidate.Pesel = form.pesel_kandydata.data
@@ -216,7 +236,9 @@ def edit_candidate():
             else:
                 flash("Dodawanie dokumentu nie powiodło się!")
         return redirect(url_for('menu_page'))
-
+    elif request.method == "POST" and not form.validate_on_submit():
+        flash("Edytowanie kandydata nie powiodło się!")
+        return render_template("editcandidate.html", form=form)
     if candidate is not None:
         form.imie_kandydata.data = candidate.FirstName
         form.nazwisko_kandydata.data = candidate.LastName
@@ -229,6 +251,11 @@ def edit_candidate():
         form.adres_zamieszkania_kandydata.data = candidate.Address
         form.kod_pocztowy_kandydata.data = candidate.CityPostalCode
         form.numer_karty_kierowcy.data = candidate.driver_card_number
+        form.data_wygasniecia_karty_kierowcy.data = candidate.driver_card_number_expires_date
+        form.form1.data = candidate.form1_status
+        form.form2.data = candidate.form2_status
+        form.form3.data = candidate.form3_status
+        form.form4.data = candidate.form4_status
     return render_template("editcandidate.html", form=form)
 
 

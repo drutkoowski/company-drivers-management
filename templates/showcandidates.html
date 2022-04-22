@@ -57,6 +57,7 @@
                             <h2 class="">
                                 {{candidate.FirstName}} {{candidate.LastName}}
                             </h2>
+                            {% if candidate.status == 0 %} <p class="text-danger">Dokumenty niewysłane</p>{% elif candidate.status == 1 %} <p class="text-warning"> Dokumenty wysłane</p>{% elif candidate.status == 3 %} <p class="text-success"> Otrzymano wszelkie zgody</p> {% elif candidate.status == 4 %} <p class="text-danger"> Otrzymano odmowę</p> {% endif %}
                          </div>
                       <div class="col-sm-12 col-lg-4 col-md-4 ml-auto">
                        <p><a class="text-decoration-none" href="{{url_for('edit_candidate', id=candidate.id)}}">Edytuj</a></p>
@@ -90,10 +91,10 @@
                                 <p>Numer karty kierowcy: {{candidate.driver_card_number}}</p>
                                 <p>Data wygaśnięcia karty kierowcy: {{candidate.driver_card_number_expires_date}}</p>
                                 <p>Status formularzy: </p>
-                                    Formularz 1: {% if candidate.form1_status == 0 %} <p class="text-danger">Nie wysłano</p> {% elif candidate.form1_status == 1 %} <p class="text-warning">Wysłano</p> {% elif candidate.form1_status == 2 %} <p class="text-success">Zatwierdzone</p> {% elif candidate.form1_status == 3 %} <p class="text-danger">Odmowa</p> {% endif%}
-                                    Formularz 2: {% if candidate.form2_status == 0 %} <p class="text-danger">Nie wysłano</p> {% elif candidate.form2_status == 1 %} <p class="text-warning">Wysłano</p> {% elif candidate.form2_status == 2 %} <p class="text-success">Zatwierdzone</p> {% elif candidate.form2_status == 3 %} <p class="text-danger">Odmowa</p> {% endif%}
-                                    Formularz 3: {% if candidate.form3_status == 0 %} <p class="text-danger">Nie wysłano</p> {% elif candidate.form3_status == 1 %} <p class="text-warning">Wysłano</p> {% elif candidate.form3_status == 2 %} <p class="text-success">Zatwierdzone</p> {% elif candidate.form3_status == 3 %} <p class="text-danger">Odmowa</p> {% endif%}
-                                    Formularz 4: {% if candidate.form4_status == 0 %} <p class="text-danger">Nie wysłano</p> {% elif candidate.form4_status == 1 %} <p class="text-warning">Wysłano</p> {% elif candidate.form4_status == 2 %} <p class="text-success">Zatwierdzone</p> {% elif candidate.form4_status == 3 %} <p class="text-danger">Odmowa</p> {% endif%}
+                                    Formularz 1: {% if candidate.form1_status == 0 %} <p class="text-danger">Nie wysłano</p> {% elif candidate.form1_status == 1 %} <p class="text-warning">Wysłano</p> {% elif candidate.form1_status == 3 %} <p class="text-success">Zatwierdzone</p> {% elif candidate.form1_status == 4 %} <p class="text-danger">Odmowa</p> {% endif%}
+                                    Formularz 2: {% if candidate.form2_status == 0 %} <p class="text-danger">Nie wysłano</p> {% elif candidate.form2_status == 1 %} <p class="text-warning">Wysłano</p> {% elif candidate.form2_status == 3 %} <p class="text-success">Zatwierdzone</p> {% elif candidate.form2_status == 4 %} <p class="text-danger">Odmowa</p> {% endif%}
+                                    Formularz 3: {% if candidate.form3_status == 0 %} <p class="text-danger">Nie wysłano</p> {% elif candidate.form3_status == 1 %} <p class="text-warning">Wysłano</p> {% elif candidate.form3_status == 3 %} <p class="text-success">Zatwierdzone</p> {% elif candidate.form3_status == 4 %} <p class="text-danger">Odmowa</p> {% endif%}
+                                    Formularz 4: {% if candidate.form4_status == 0 %} <p class="text-danger">Nie wysłano</p> {% elif candidate.form4_status == 1 %} <p class="text-warning">Wysłano</p> {% elif candidate.form4_status == 3 %} <p class="text-success">Zatwierdzone</p> {% elif candidate.form4_status == 4 %} <p class="text-danger">Odmowa</p> {% endif%}
 
                                 </details>
 
@@ -122,14 +123,16 @@
                             <h2 class="">
                                 {{candidate_search.FirstName}} {{candidate_search.LastName}}
                             </h2>
+                            {% if candidate_search.status == 0 %} <p class="text-danger">Dokumenty niewysłane</p>{% elif candidate_search.status == 1 %} <p class="text-warning"> Dokumenty wysłane</p>{% elif candidate_search.status == 2 %} <p class="text-success"> Otrzymano wszelkie zgody</p> {% elif candidate_search.status == 3 %} <p class="text-danger"> Otrzymano odmowę</p> {% endif %}
+
                          </div>
                       <div class="col-sm-12 col-lg-4 col-md-4 ml-auto">
                        <p><a class="text-decoration-none" href="{{url_for('edit_candidate', id=candidate_search.id)}}">Edytuj</a></p>
                         <p><a class="text-decoration-none" href="{{url_for('delete_candidate', id=candidate_search.id)}}">Usuń</a></p>
                         </div>
                         <div class="col-sm-12 col-lg-4 col-md-4 ml-auto">
-                            <p><a class="text-decoration-none" href="{{url_for('show_docs', id=candidate_search.id)}}">Przeglądaj skan dowodu</a></p>
-                          <p><a class="text-decoration-none" href="{{url_for('show_docs', id=candidate_search.id)}}">Przeglądaj kartę kierowcy</a></p>
+                            <p><a class="text-decoration-none" href="{{url_for('show_docs_dowod', id=candidate_search.id)}}">Przeglądaj skan dowodu</a></p>
+                          <p><a class="text-decoration-none" href="{{url_for('show_docs_karta', id=candidate_search.id)}}">Przeglądaj kartę kierowcy</a></p>
                         </div>
                     </div>
 
@@ -152,10 +155,10 @@
                                 <p>Numer karty kierowcy: {{candidate_search.driver_card_number}}</p>
                                 <p>Data wygaśnięcia karty kierowcy: {{candidate_search.driver_card_number_expires_date}}</p>
                                 <p>Status formularzy: </p>
-                                    Formularz 1: {% if candidate_search.form1_status == 0 %} <p class="text-danger">Nie wysłano</p> {% elif candidate_search.form1_status == 1 %} <p class="text-warning">Wysłano</p> {% elif candidate_search.form1_status == 2 %} <p class="text-success">Zatwierdzone</p> {% elif candidate_search.form1_status == 3 %} <p class="text-danger">Odmowa</p> {% endif%}
-                                    Formularz 2: {% if candidate_search.form2_status == 0 %} <p class="text-danger">Nie wysłano</p> {% elif candidate_search.form2_status == 1 %} <p class="text-warning">Wysłano</p> {% elif candidate_search.form2_status == 2 %} <p class="text-success">Zatwierdzone</p> {% elif candidate_search.form2_status == 3 %} <p class="text-danger">Odmowa</p> {% endif%}
-                                    Formularz 3: {% if candidate_search.form3_status == 0 %} <p class="text-danger">Nie wysłano</p> {% elif candidate_search.form3_status == 1 %} <p class="text-warning">Wysłano</p> {% elif candidate_search.form3_status == 2 %} <p class="text-success">Zatwierdzone</p> {% elif candidate_search.form3_status == 3 %} <p class="text-danger">Odmowa</p> {% endif%}
-                                    Formularz 4: {% if candidate_search.form4_status == 0 %} <p class="text-danger">Nie wysłano</p> {% elif candidate_search.form4_status == 1 %} <p class="text-warning">Wysłano</p> {% elif candidate_search.form4_status == 2 %} <p class="text-success">Zatwierdzone</p> {% elif candidate_search.form4_status == 3 %} <p class="text-danger">Odmowa</p> {% endif%}
+                                    Formularz 1: {% if candidate_search.form1_status == 0 %} <p class="text-danger">Nie wysłano</p> {% elif candidate_search.form1_status == 1 %} <p class="text-warning">Wysłano</p> {% elif candidate_search.form1_status == 3 %} <p class="text-success">Zatwierdzone</p> {% elif candidate_search.form1_status == 4 %} <p class="text-danger">Odmowa</p> {% endif%}
+                                    Formularz 2: {% if candidate_search.form2_status == 0 %} <p class="text-danger">Nie wysłano</p> {% elif candidate_search.form2_status == 1 %} <p class="text-warning">Wysłano</p> {% elif candidate_search.form2_status == 3 %} <p class="text-success">Zatwierdzone</p> {% elif candidate_search.form2_status == 4 %} <p class="text-danger">Odmowa</p> {% endif%}
+                                    Formularz 3: {% if candidate_search.form3_status == 0 %} <p class="text-danger">Nie wysłano</p> {% elif candidate_search.form3_status == 1 %} <p class="text-warning">Wysłano</p> {% elif candidate_search.form3_status == 3 %} <p class="text-success">Zatwierdzone</p> {% elif candidate_search.form3_status == 4 %} <p class="text-danger">Odmowa</p> {% endif%}
+                                    Formularz 4: {% if candidate_search.form4_status == 0 %} <p class="text-danger">Nie wysłano</p> {% elif candidate_search.form4_status == 1 %} <p class="text-warning">Wysłano</p> {% elif candidate_search.form4_status == 3 %} <p class="text-success">Zatwierdzone</p> {% elif candidate_search.form4_status == 4 %} <p class="text-danger">Odmowa</p> {% endif%}
 
                                 </details>
                             </div>
@@ -166,9 +169,9 @@
 {% endif %}
 
 
-<div class="row mt-5 mb-5"></div>
-<div class="row mt-5 mb-5"></div>
-<div class="row mt-5 mb-5"></div>
+<div class="row mt-5"></div>
+<div class="row mt-5"></div>
+<div class="row mt-5"></div>
 {% include "footer.html" %}
 {% endblock %}
 
