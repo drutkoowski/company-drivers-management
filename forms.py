@@ -1,12 +1,12 @@
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileAllowed
-from wtforms import StringField, SubmitField, IntegerField, DateField, SelectField, FileField
+from wtforms import StringField, SubmitField, IntegerField, DateField, SelectField, FileField, DecimalField
 from wtforms.validators import DataRequired, URL, NumberRange, Email, Length, Optional
 
 
 class NewCandidate(FlaskForm):
-    karta_kierowcy = FileField("OPCJONALNE: Dodaj kartę kierowcy (jpg/png)", validators=[Optional()],render_kw={'style': 'margin-top:1rem!important;'})
-    skan_dowodu = FileField("OPCJONALNE: Dodaj skan dowodu (jpg/png)", validators=[Optional()],render_kw={'style': 'margin-top:1rem!important;'})
+    karta_kierowcy = FileField("OPCJONALNE: Dodaj kartę kierowcy (jpg/png)", validators=[Optional()])
+    skan_dowodu = FileField("OPCJONALNE: Dodaj skan dowodu (jpg/png)", validators=[Optional()])
     imie_kandydata = StringField("Imię: ", validators=[DataRequired(message="Brak imienia!")])
     nazwisko_kandydata = StringField("Nazwisko: ", validators=[DataRequired(message="Brak nazwiska!")])
     pesel_kandydata = IntegerField("Pesel: ", validators=[DataRequired(message="Brak numeru pesel!")])
@@ -26,10 +26,10 @@ class NewCandidate(FlaskForm):
     submit = SubmitField("Dodaj kandydata",render_kw={'style': 'margin-top:1rem!important;'})
 
 class EditCandidate(FlaskForm):
-    karta_kierowcy = FileField("OPCJONALNE: Dodaj kartę kierowcy (pdf)", validators=[Optional(),FileAllowed(['jpg', 'png'])],
-                               render_kw={'style': 'margin-top:1rem!important;'})
-    skan_dowodu = FileField("OPCJONALNE: Dodaj skan dowodu (pdf)", validators=[Optional(),FileAllowed(['jpg', 'png'])],
-                            render_kw={'style': 'margin-top:1rem!important;'})
+    karta_kierowcy = FileField("OPCJONALNE: Dodaj kartę kierowcy (jpg/png)", validators=[Optional()],
+                               )
+    skan_dowodu = FileField("OPCJONALNE: Dodaj skan dowodu (jpg/png)", validators=[Optional()],
+                            )
     imie_kandydata = StringField("Imię: ", validators=[DataRequired(message="Brak imienia!")])
     nazwisko_kandydata = StringField("Nazwisko: ", validators=[DataRequired(message="Brak nazwiska!")])
     pesel_kandydata = IntegerField("Pesel: ", validators=[DataRequired(message="Brak numeru pesel!")])

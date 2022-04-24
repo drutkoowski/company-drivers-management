@@ -3,25 +3,23 @@
 {% block title %}Projekt Zespolowy {% endblock %}
 {% include "header.html" %}
 {% block content %}
-<div class="row mt-5"></div>
+
 <div class="container mt-5">
-    <h2 class="text-center text-dark">Dodaj kandydata</h2>
      {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
         {% for category, message in messages %}
         <div class="row faded-alert text-center text-danger">
             <div class="col-md-12 col-lg-12 col-sm-12 ml-auto mr-auto">
-            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-                <span>{{ message }}</span>
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        <span>{{ message }}</span>
+                    </div>
             </div>
-                </div>
-            </div>
+        </div>
             {% endfor %}
             {% endif %}
         {% endwith %}
-    <div class="row">
-        <div class="col-3"></div>
-        <div class="col-6">
+    <div class="row mt-5">
+        <div class="col-12 mt-5">
           <details>
                           <summary class="text-dark">Odnośniki do formularzy</summary>
                            <p><a class="text-decoration-none" href="">Formularz 1</a></p>
@@ -30,22 +28,57 @@
                             <p><a class="text-decoration-none" href="">Formularz 4</a></p>
                         </details>
         </div>
-        <div class="col-3"></div>
     </div>
 
 
 </div>
 <div class="container text-dark">
-    <div class="row">
-        <div class="col-3"></div>
-        <div class="col-6"> {{ wtf.quick_form(form, novalidate=True, button_map={"submit": "dark"}) }}</div>
-        <div class="col-3"></div>
+    <form action="{{url_for('add_candidate')}}" method="post" enctype="multipart/form-data">
+        {{ form.csrf_token }}
+    <div class="row form-group">
+        <div class="col-lg-6 col-md-6 col-sm-12 "><p class="d-inline-block">{{ form.karta_kierowcy.label(class_="mt-5 ") }}</p> {{ form.karta_kierowcy(class_="mt-5 rounded-3") }} </div>
+        <div class="col-lg-6 col-md-6 col-sm-12">{{ form.skan_dowodu.label(class_="mt-5") }} {{ form.skan_dowodu(class_="mt-5 rounded-3") }} </div>
     </div>
+    <div class="row form-group">
+        <div class="col-lg-6 col-md-6 col-sm-12 form-control-lg"><p class="d-inline-block">{{ form.imie_kandydata.label(class_="mt-2") }}</p> {{ form.imie_kandydata(class_="mt-2 rounded-3") }} </div>
+        <div class="col-lg-6 col-md-6 col-sm-12 form-control-lg">{{ form.pesel_kandydata.label(class_="mt-2") }} {{ form.pesel_kandydata(class_="mt-2 rounded-3") }} </div>
+    </div>
+    <div class="row form-group">
+        <div class="col-lg-6 col-md-6 col-sm-12 form-control-lg">{{ form.nazwisko_kandydata.label(class_="mt-2") }} {{ form.nazwisko_kandydata(class_="mt-2 rounded-3") }} </div>
+        <div class="col-lg-6 col-md-6 col-sm-12 form-control-lg">{{ form.email_kandydata.label(class_="mt-2") }} {{ form.email_kandydata(class_="mt-2 rounded-3") }} </div>
+    </div>
+    <div class="row form-group">
+        <div class="col-lg-6 col-md-6 col-sm-12 form-control-lg">{{ form.narodowosc_kandydata.label(class_="mt-2") }} {{ form.narodowosc_kandydata(class_="mt-2 rounded-3") }} </div>
+        <div class="col-lg-6 col-md-6 col-sm-12 form-control-lg">{{ form.miasto_urodzenia_kandydata.label(class_="mt-2") }} {{ form.miasto_urodzenia_kandydata(class_="mt-2 rounded-3") }} </div>
+    </div>
+    <div class="row form-group">
+        <div class="col-lg-6 col-md-6 col-sm-12 form-control-lg">{{ form.data_urodzenia_kandydata.label(class_="mt-2") }} {{ form.data_urodzenia_kandydata(class_="mt-2 rounded-3") }} </div>
+        <div class="col-lg-6 col-md-6 col-sm-12 form-control-lg">{{ form.miejscowosc_zamieszkania_kandydata.label(class_="mt-2") }} {{ form.miejscowosc_zamieszkania_kandydata(class_="mt-2 rounded-3") }} </div>
+    </div>
+    <div class="row form-group">
+        <div class="col-lg-6 col-md-6 col-sm-12 form-control-lg">{{ form.adres_zamieszkania_kandydata.label(class_="mt-2") }} {{ form.adres_zamieszkania_kandydata(class_="mt-2 rounded-3") }} </div>
+        <div class="col-lg-6 col-md-6 col-sm-12 form-control-lg">{{ form.kod_pocztowy_kandydata.label(class_="mt-2 rounded-3") }} {{ form.kod_pocztowy_kandydata(class_="mt-2 rounded-3") }} </div>
+    </div>
+       <div class="row form-group">
+        <div class="col-lg-6 col-md-6 col-sm-12 form-control-lg">{{ form.numer_karty_kierowcy.label(class_="mt-2 rounded-3") }} {{ form.numer_karty_kierowcy(class_="mt-2 rounded-3") }} </div>
+        <div class="col-lg-6 col-md-6 col-sm-12 form-control-lg">{{ form.data_wygasniecia_karty_kierowcy.label(class_="mt-2 rounded-3") }} {{ form.data_wygasniecia_karty_kierowcy(class_="mt-2 rounded-3") }} </div>
+    </div>
+     <div class="row form-group">
+        <div class="col-lg-3 col-md-6 col-sm-12">{{ form.form1.label(class_="mt-3 rounded-3") }} {{ form.form1(class_="mt-5") }} </div>
+           <div class="col-lg-3 col-md-6 col-sm-12"> {{ form.form2.label(class_="mt-3") }} {{ form.form2(class_="mt-5") }} </div>
+                <div class="col-lg-3 col-md-6 col-sm-12">
+                    {{ form.form3.label(class_="mt-3") }} {{ form.form3(class_="mt-5") }}
+                </div>
+            <div class="col-lg-3 col-md-6 col-sm-12">
+            {{ form.form4.label(class_="mt-3") }} {{ form.form4(class_="mt-5") }}
+            </div>
+    </div>
+    <div class="row form-group mb-5 p-0">
+        <div class="col-lg-12 col-md-12 col-sm-12 form-control-lg p-0">{{form.submit(class="btn-lg submit btn-dark m-0 mb-5 rounded-3")}}</div>
+    </div>
+        </form>
 
 </div>
-<div class="row mt-5"></div>
-<div class="row mt-5"></div>
-<div class="row mt-5"></div>
 
 {% include "footer.html" %}
 {% endblock %}

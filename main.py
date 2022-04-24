@@ -1,16 +1,11 @@
 import string
-import webbrowser
-
-import werkzeug
 from flask import Flask, render_template, request, redirect, url_for, flash, Response
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin, login_user, LoginManager, login_required, current_user, logout_user
 from werkzeug.utils import secure_filename
-
 from forms import NewCandidate, EditCandidate
 from flask_bootstrap import Bootstrap
-import os
 import smtplib
 import random
 import datetime
@@ -86,7 +81,7 @@ class Candidates(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     FirstName = db.Column(db.String(25))
     LastName = db.Column(db.String(25))
-    Pesel = db.Column(db.Integer)
+    Pesel = db.Column(db.Integer, unique=True)
     Email = db.Column(db.String(80))
     Nationality = db.Column(db.String(25))
     BirthCity = db.Column(db.String(80))
@@ -108,7 +103,7 @@ class Candidates(db.Model):
 
 class Documents(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    doc = db.Column(db.Text, unique=True, nullable=False)
+    doc = db.Column(db.Text, nullable=False)
     name = db.Column(db.Text, nullable=False)
     mimetype = db.Column(db.Text, nullable=False)
     candidate_id = db.Column(db.Integer, db.ForeignKey('candidates.id'))
@@ -116,10 +111,13 @@ class Documents(db.Model):
 
 class DocumentsCard(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    doc = db.Column(db.Text, unique=True, nullable=False)
+    doc = db.Column(db.Text, nullable=False)
     name = db.Column(db.Text, nullable=False)
     mimetype = db.Column(db.Text, nullable=False)
     candidate_id = db.Column(db.Integer, db.ForeignKey('candidates.id'))
+
+
+
 
 @app.route('/signup', methods=["GET", "POST"])
 def signup():
@@ -132,7 +130,6 @@ def signup():
         secondname = request.form.get("secondname_signup")
         password = request.form.get("password_signup")
         is_user_in_database = Employee.query.filter_by(Email=email).first()
-        print(is_user_in_database)
         if is_user_in_database:
             flash("Użytkownik z podanym adresem email już istnieje!")
             return render_template("signup.html")
@@ -209,25 +206,33 @@ def add_candidate():
         db.session.add(new_candidate)
         db.session.commit()
         if form.skan_dowodu.data:
-            filename = secure_filename(form.skan_dowodu.data.filename)
-            mimetype = form.skan_dowodu.data.mimetype
-            if not filename or not mimetype:
-                flash("Nie udało się dodać skanu!")
-                return render_template("add.html", form=form)
-            doc = Documents(doc=form.skan_dowodu.data.read(), name=filename, mimetype=mimetype,
-                            candidate_id=new_candidate.id)
-            db.session.add(doc)
-            db.session.commit()
-            if form.karta_kierowcy.data:
-                filename = secure_filename(form.karta_kierowcy.data.filename)
-                mimetype = form.karta_kierowcy.data.mimetype
+            try:
+                filename = secure_filename(form.skan_dowodu.data.filename)
+                mimetype = form.skan_dowodu.data.mimetype
                 if not filename or not mimetype:
                     flash("Nie udało się dodać skanu!")
                     return render_template("add.html", form=form)
-                docCard = DocumentsCard(doc=form.karta_kierowcy.data.read(), name=filename, mimetype=mimetype,
-                                        candidate_id=new_candidate.id)
-                db.session.add(docCard)
+                doc = Documents(doc=form.skan_dowodu.data.read(), name=filename, mimetype=mimetype,
+                                candidate_id=new_candidate.id)
+                db.session.add(doc)
                 db.session.commit()
+            except:
+                flash("Nie udało się załadować tego pliku")
+                return render_template("add.html", form=form)
+            if form.karta_kierowcy.data:
+                try:
+                    filename = secure_filename(form.karta_kierowcy.data.filename)
+                    mimetype = form.karta_kierowcy.data.mimetype
+                    if not filename or not mimetype:
+                        flash("Nie udało się dodać skanu!")
+                        return render_template("add.html", form=form)
+                    docCard = DocumentsCard(doc=form.karta_kierowcy.data.read(), name=filename, mimetype=mimetype,
+                                            candidate_id=new_candidate.id)
+                    db.session.add(docCard)
+                    db.session.commit()
+                except:
+                    flash("Nie udało się załadować tego pliku")
+                    return render_template("add.html", form=form)
 
         return render_template("menu_page.html")
     return render_template("add.html", form=form)
@@ -280,8 +285,14 @@ def edit_candidate():
     candidate = Candidates.query.filter_by(id=id).first()
     form = EditCandidate()
     if request.method == "POST" and form.validate_on_submit():
+        id = request.args.get("id")
+        candidate = Candidates.query.filter_by(id=id).first()
         candidate.FirstName = form.imie_kandydata.data
         candidate.LastName = form.nazwisko_kandydata.data
+        is_pesel_in_db = Candidates.query.filter_by(Pesel=form.pesel_kandydata.data).first()
+        if is_pesel_in_db is not None and candidate.Pesel != is_pesel_in_db.Pesel:
+            flash("Kandydat z takim peselem już istnieje!")
+            return redirect(url_for('edit_candidate', id=candidate.id))
         candidate.Pesel = form.pesel_kandydata.data
         candidate.Email = form.email_kandydata.data
         candidate.Nationality = form.narodowosc_kandydata.data
@@ -296,19 +307,36 @@ def edit_candidate():
         candidate.form2_status = form.form2.data
         candidate.form3_status = form.form3.data
         candidate.form4_status = form.form4.data
+        if form.skan_dowodu.data:
+            try:
+                filename = secure_filename(form.skan_dowodu.data.filename)
+                mimetype = form.skan_dowodu.data.mimetype
+                if not filename or not mimetype:
+                    flash("Nie udało się dodać skanu!")
+                    return render_template("editcandidate.html", form=form)
+                doc = Documents(doc=form.skan_dowodu.data.read(), name=filename, mimetype=mimetype,
+                                candidate_id=candidate.id)
+                db.session.add(doc)
+                db.session.commit()
+            except:
+                flash("Nie udało się załadować tego pliku")
+                return render_template("editcandidate.html", form=form)
+        if form.karta_kierowcy.data:
+            try:
+
+                filename = secure_filename(form.karta_kierowcy.data.filename)
+                mimetype = form.karta_kierowcy.data.mimetype
+                if not filename or not mimetype:
+                    flash("Nie udało się dodać skanu!")
+                    return render_template("editcandidate.html", form=form)
+                docCard = DocumentsCard(doc=form.karta_kierowcy.data.read(), name=filename, mimetype=mimetype,
+                                            candidate_id=candidate.id)
+                db.session.add(docCard)
+                db.session.commit()
+            except:
+                flash("Nie udało się załadować tego pliku")
+                return render_template("editcandidate.html", form=form)
         db.session.commit()
-        cwd = rf"{os.getcwd()}"
-        pesel_kandydata = candidate.Pesel
-        newpath = rf"{cwd}/{pesel_kandydata}"
-        if not os.path.exists(newpath):
-            folder_name = f"{pesel_kandydata}"
-            os.mkdir(f"{folder_name}")
-            if form.skan_dowodu.data:
-                form.skan_dowodu.data.save(os.path.join(f'{pesel_kandydata}/skandowodu.pdf'))
-            if form.karta_kierowcy.data:
-                form.karta_kierowcy.data.save(os.path.join(f'{pesel_kandydata}/kartakierowcy.pdf'))
-            else:
-                flash("Dodawanie dokumentu nie powiodło się!")
         return redirect(url_for('menu_page'))
     elif request.method == "POST" and not form.validate_on_submit():
         flash("Edytowanie kandydata nie powiodło się!")
@@ -326,10 +354,10 @@ def edit_candidate():
         form.kod_pocztowy_kandydata.data = candidate.CityPostalCode
         form.numer_karty_kierowcy.data = candidate.driver_card_number
         form.data_wygasniecia_karty_kierowcy.data = candidate.driver_card_number_expires_date
-        form.form1.data = candidate.form1_status
-        form.form2.data = candidate.form2_status
-        form.form3.data = candidate.form3_status
-        form.form4.data = candidate.form4_status
+        form.form1.default = candidate.form1_status
+        form.form2.default = candidate.form2_status
+        form.form3.default = candidate.form3_status
+        form.form4.default = candidate.form4_status
     return render_template("editcandidate.html", form=form)
 
 
@@ -338,8 +366,15 @@ def edit_candidate():
 def delete_candidate():
     id = request.args.get("id")
     candidate = Candidates.query.filter_by(id=id).first()
+    documents = Documents.query.filter_by(candidate_id=id)
+    documents_card = Documents.query.filter_by(candidate_id=id)
     try:
         db.session.delete(candidate)
+        try:
+            db.session.delete(documents)
+            db.session.delete(documents_card)
+        except:
+            flash("Usuwanie dokumentów kandydata nie powiodło się!")
     except:
         flash("Usuwanie kandydata nie powiodło się!")
     else:
@@ -363,7 +398,7 @@ def password_lost():
                 connection.starttls()
                 connection.login(user=my_email, password=password)
                 connection.sendmail(from_addr=my_email, to_addrs=email_input,
-                                    msg=f"Subject:Przypomnienie adresu email!\n\nTwoj kod do przypomnienia hasla:{code}")
+                                    msg=f"Subject:Przypomnienie hasla dla konta!\n\nTwoj kod do przypomnienia hasla:{code}")
                 connection.close()
             return redirect(url_for('email_code', email_input=email_input))
         else:
@@ -396,7 +431,7 @@ def email_code():
     if email is not None:
         return render_template("email_code.html")
 
-
+@login_required
 @app.route('/logout')
 def logout():
     logout_user()
