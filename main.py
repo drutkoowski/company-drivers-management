@@ -118,7 +118,6 @@ class DocumentsCard(db.Model):
 
 
 
-
 @app.route('/signup', methods=["GET", "POST"])
 def signup():
     if current_user.is_authenticated:
@@ -219,20 +218,21 @@ def add_candidate():
             except:
                 flash("Nie udało się załadować tego pliku")
                 return render_template("add.html", form=form)
-            if form.karta_kierowcy.data:
-                try:
-                    filename = secure_filename(form.karta_kierowcy.data.filename)
-                    mimetype = form.karta_kierowcy.data.mimetype
-                    if not filename or not mimetype:
-                        flash("Nie udało się dodać skanu!")
-                        return render_template("add.html", form=form)
-                    docCard = DocumentsCard(doc=form.karta_kierowcy.data.read(), name=filename, mimetype=mimetype,
-                                            candidate_id=new_candidate.id)
-                    db.session.add(docCard)
-                    db.session.commit()
-                except:
-                    flash("Nie udało się załadować tego pliku")
+        if form.karta_kierowcy.data:
+            print("y")
+            try:
+                filename = secure_filename(form.karta_kierowcy.data.filename)
+                mimetype = form.karta_kierowcy.data.mimetype
+                if not filename or not mimetype:
+                    flash("Nie udało się dodać skanu!")
                     return render_template("add.html", form=form)
+                docCard = DocumentsCard(doc=form.karta_kierowcy.data.read(), name=filename, mimetype=mimetype,
+                                            candidate_id=new_candidate.id)
+                db.session.add(docCard)
+                db.session.commit()
+            except:
+                flash("Nie udało się załadować tego pliku")
+                return render_template("add.html", form=form)
 
         return render_template("menu_page.html")
     return render_template("add.html", form=form)
@@ -314,8 +314,10 @@ def edit_candidate():
                 if not filename or not mimetype:
                     flash("Nie udało się dodać skanu!")
                     return render_template("editcandidate.html", form=form)
+                dowod_to_delete = Documents.query.filter_by(candidate_id=candidate.id).first()
                 doc = Documents(doc=form.skan_dowodu.data.read(), name=filename, mimetype=mimetype,
                                 candidate_id=candidate.id)
+                db.session.delete(dowod_to_delete)
                 db.session.add(doc)
                 db.session.commit()
             except:
@@ -323,14 +325,15 @@ def edit_candidate():
                 return render_template("editcandidate.html", form=form)
         if form.karta_kierowcy.data:
             try:
-
                 filename = secure_filename(form.karta_kierowcy.data.filename)
                 mimetype = form.karta_kierowcy.data.mimetype
                 if not filename or not mimetype:
                     flash("Nie udało się dodać skanu!")
                     return render_template("editcandidate.html", form=form)
+                docCard_to_delete = DocumentsCard.query.filter_by(candidate_id=candidate.id).first()
                 docCard = DocumentsCard(doc=form.karta_kierowcy.data.read(), name=filename, mimetype=mimetype,
                                             candidate_id=candidate.id)
+                db.session.delete(docCard_to_delete)
                 db.session.add(docCard)
                 db.session.commit()
             except:
